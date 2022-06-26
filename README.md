@@ -134,7 +134,7 @@ Mentorship: A relationship in which a more experienced or more knowledgeable per
 
 <br><br>
 
-## 2. Associations
+## 5. Associations
 A Person is or is not a Customer.
 A Customer is a Person.
 
@@ -215,11 +215,11 @@ A Certification owns one to many Mechanic-Certifications.
 A Mechanic-Certification is owned by one and only one Certification.
 
 <br><br>
-## Denormalization
+## 6. Denormalization
 We did not do any denormalization in our design. The max number of tables we have to go through to reach a certain data is five. We believe this won’t do much to slow down our database queries.
 
 <br><br>
-## Description of Attributes
+## 7. Description of Attributes
 ### People
 * firstName: a personal designation given to someone at birth and used before a family name.
 * lastName: a family name
@@ -313,7 +313,7 @@ Visit the main branch of the repository to view the [DDL](DDL.sql) and [DML](DML
 
 <br><br>
 
-## Views
+## 8. Views
 1. Customer_v – for each customer, indicate his or her name as well as the customer type (prospect, steady or premier) as well as the number of years that customer has been with us.
 ```sql
 CREATE VIEW Customer_v AS
@@ -448,7 +448,8 @@ CREATE VIEW Prospective_resurrection_v AS
 | --- | --- | --- | --- |
 | c07 | Mike | Yin | 3 |
 
-## Queries
+<br><br>
+## 9. Queries
 1. List the customers.  For each customer, indicate which category he or she fall into, and his or her contact information.
 
 ```sql
@@ -484,7 +485,15 @@ on a.customerid = c.customerid);
 ```
 
 #### Output
-
+| FIRSTNAME | LASTNAME | TYPE | ATYPE | ADDRESS |
+| --- | --- | --- | --- | --- |
+| Chris | Zemke | Steady  | corporation | 9606 Branch Lane Tustin, CA 92780 |
+| Hank | Schrader | Premier   | private |         10 Roberts, Coto de Caza, CA 92604 |
+| Jane | Whip | Prospective | private |         415 Baronet, Mission Viejo, CA 92692 |
+| John | Bridge | Steady      | private |         1234 Cantberry Way, CA 92244 |
+| Mike | Yin | Prospective | private |         8344 Heather St. San Francisco, CA 94109 |
+| Sarah | Whethers | Steady      | private |         1456 Man Street, Porland, OR 92213 |
+| Zack | Maldonado | Premier     | corporation | 9524 Oak St. Laguna Niguel, CA 92677 |
 <br>
 2. For each service visit, list the total cost to the customer for that visit.
 
@@ -506,6 +515,34 @@ order by o.visitid asc;
 ```
 
 #### Output
+| VISITID | CUSTOMERID | FIRSTNAME | LASTNAME | ITEMS | TOTAL |
+| --- | --- | --- | --- | --- | --- |
+| o02 | c01 | John | Bridge | 2 | 95 |
+| o03 | c05 | Sarah | Whethers | 3 | 680 |
+| o04 | c08 | Chris | Zemke | 3 | 495 |
+| o05 | c07 | Mike | Yin | 2 | 180 |
+| o06 | c04 | Bridgette | Storm | 1 | 400 |
+| o07 | c02 | Jane | Whip | 1 | 500 |
+| o08 | c08 | Chris | Zemke | 1 | 500 |
+| o09 | c08 | Chris | Zemke | 1 | 65 |
+| o10 | c08 | Chris | Zemke | 1 | 65 |
+| o11 | c05 | Sarah | Whethers | 1 | 40 |
+| o12 | c05 | Sarah | Whethers | 1 | 150 |
+| o13 | c05 | Sarah | Whethers | 1 | 65 |
+| o14 | c05 | Sarah | Whethers | 1 | 65 |
+| o15 | c05 | Sarah | Whethers | 1 | 500 |
+| o16 | c01 | John | Bridge | 1 | 65 |
+| o17 | c01 | John | Bridge | 2 | 215 |
+| o18 | c01 | John | Bridge | 1 | 65 |
+| o19 | c06 | Zack | Maldonado | 1 | 65 |
+| o20 | c06 | Zack | Maldonado | 1 | 500 |
+| o21 | c06 | Zack | Maldonado | 1 | 65 |
+| o22 | c06 | Zack | Maldonado | 1 | 500 |
+| o23 | c03 | Hank | Schrader | 1 | 30 |
+| o24 | c03 | Hank | Schrader | 1 | 150 |
+| o25 | c03 | Hank | Schrader | 2 | 465 |
+| o26 | c03 | Hank | Schrader | 1 | 65 |
+| o27 | c03 | Hank | Schrader | 2 | 465 |
 
 <br>
 3. List the top three customers in terms of their net spending for the past two years, and the total that they have spent in that period.
@@ -529,6 +566,11 @@ order by total desc
 ```
 
 #### Output
+| CUSTOMERID | FIRSTNAME | LASTNAME | TOTAL |
+| --- | --- | --- | --- |
+| c05 | Sarah | Whethers | 1500 |
+| c03 | Hank | Schrader | 1175 |
+| c06 | Zack | Maldonado | 1130 |
 
 <br>
 4. Find all of the mechanics who have three or more skills.
@@ -539,6 +581,13 @@ from person NATURAL JOIN employee NATURAL JOIN mechanic_skill GROUP BY firstName
 ```
 
 #### Output
+| FIRSTNAME | LASTNAME | NUMBER_OF_SKILLS |
+| --- | --- | --- |
+| Jake | Johnson | 3 |
+| Paul | Rayn | 5 |
+| Ryan | Reigns | 5 |
+| Stewart | Hancock | 4 |
+| Winston | Mukasa | 4 |
 
 <br>
 5. Find all of the mechanics who have three or more skills in common.
@@ -582,6 +631,10 @@ where commonskills > 2;
 ```
 
 #### Output
+| EMPLOYEEID1 | EMPLOYEEID2 | COMMONSKILLS |
+| --- | --- | --- |
+| e02 | e03 | 3 |
+| e02 | e06 | 4 |
 
 <br>
 6. For each maintenance package, list the total cost of the maintenance package, as well as a list of all of the maintenance items within that package.
@@ -597,6 +650,11 @@ group by m.packageid,packagedescription;
 ```
 
 #### Output
+| PACKAGEID | MAINTENANCEITEMS | TOTAL |
+| --- | --- | --- |
+| mp01 | Tire Rotation, Oil Change | 95 |
+| mp02 | Oil Change, air filters | 105 |
+| mp03 | Tire Rotation, Brakes | 180 |
 
 <br>
 7. Find all of those mechanics who have one or more maintenance items that they lacked one or more of the necessary skills.
@@ -612,6 +670,13 @@ group by m.employeeid,firstname,lastname,phonenumber;
 ```
 
 #### Output
+| EMPLOYEEID | FIRSTNAME | LASTNAME | PHONENUMBER |
+| --- | --- | --- | --- |
+| e02 | Winston | Mukasa | (949) 353-6854 |
+| e03 | Ryan | Reigns | (949) 415-9874 |
+| e04 | Jake | Johnson | (949) 412-8572 |
+| e05 | Stewart | Hancock | (714) 736-8643 |
+| e06 | Paul | Rayn | (949) 234-6543 |
 
 <br>
 8. List the customers, sorted by the number of loyalty points that they have, from largest to smallest.
@@ -622,6 +687,11 @@ NATURAL JOIN customer NATURAL JOIN steady_customer ORDER BY loyaltyPoints DESC;
 ```
 
 #### Output
+| FIRSTNAME | LASTNAME | LOYALTYPOINTS |
+| --- | --- | --- |
+| John | Bridge | 200 |
+| Chris | Zemke | 150 |
+| Sarah | Whethers | 100 |
 
 <br>
 9. The premier customers and the difference between what they have paid in the past year, versus the services that they actually used during that same time.  List from the customers with the largest difference to the smallest.
@@ -646,6 +716,10 @@ order by difference desc;
 ```
 
 #### Output
+| CUSTOMERID | FIRSTNAME | LASTNAME | ACTUALPAY | SHOULDPAY | DIFFERENCE |
+| --- | --- | --- | --- | --- | --- |
+| c06 | Zack | Maldonado | 850 | 565 | 285 |
+| c03 | Hank | Schrader | 1000 | 1145 | -145 |
 
 <br>
 10. Report on the steady customers based on the net profit that we have made from them over the past year, and the dollar amount of that profit, in order from the greatest to the least.
@@ -670,6 +744,10 @@ order by profit desc;
 ```
 
 #### Output
+| CUSTOMERID | FIRSTNAME | LASTNAME | NETPROFIT | PROFIT |
+| --- | --- | --- | --- | --- |
+| c01 | John | Bridge | 1055 | 263.75 |
+| c05 | Sarah | Whethers | 780 | 195.00 |
 
 <br>
 11. List the three services that we have performed the most in the last year and how many times they were performed. 
@@ -696,6 +774,11 @@ limit 3;
 ```
 
 #### Output
+| SERVICE | TIMESPERFORMED |
+| --- | --- |
+| Oil Change | 11 |
+| Brakes | 5 |
+| Timing Belts | 3 |
 
 <br>
 12. List the three services that have brought in the most money in the last year along with that amount of money.
@@ -712,6 +795,11 @@ limit 3;
 ```
 
 #### Output
+| SERVICE | TIMESPERFORMED | TOTAL |
+| --- | --- | --- |
+| Oil Change | 11 | 715 |
+| Brakes | 5 | 750 |
+| Timing Belts | 3 | 1200 |
 
 <br>
 13. Find the mechanic who is mentoring the most other mechanics.  List the skills that the mechanic is passing along to the other mechanics.
@@ -728,6 +816,11 @@ limit 2;
 ```
 
 #### Output
+| FIRSTNAME | LASTNAME | NUMBEROFMENTEE | SKILLMENTORED |
+| --- | --- | --- | --- |
+| Winston | Mukasa | 2 | Oil Change |
+| Winston | Mukasa | 1 | Hoist Operation |
+
 
 <br>
 14. Find the three skills that have the fewest mechanics who have those skills.
@@ -740,6 +833,11 @@ ORDER BY count(*) OFFSET 0 ROWS
 limit 3;
 ```
 #### Output
+| SKILLNAME | SKILL_OCCURANCE |
+| --- | --- |
+| Timing Belts | 1 |
+| Ring Operation | 1 |
+| Hoist Operation | 1 |
 
 <br>
 15. List the employees who are both service technicians as well as mechanics.
@@ -750,3 +848,6 @@ NATURAL JOIN employee NATURAL JOIN service_technician NATURAL JOIN mechanic;
 ```
 
 #### Output
+| FIRSTNAME | LASTNAME | EMPLOYEEID |
+| --- | --- | --- |
+| Ryan | Reigns | e03 |
