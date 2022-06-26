@@ -3,7 +3,7 @@ Dave's Auto Repair Database
 Minh
 2020-11-03
 
-<br><br>
+<br>
 
 ## 1. Background
 
@@ -90,7 +90,8 @@ by the shop.
 <br><br>
 
 ## 3. Class Diagram 
-![](class_diagram.png)<!-- -->
+![class diagram](class_diagram.png)
+
 
 <br><br>
 
