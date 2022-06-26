@@ -314,6 +314,7 @@ Visit the main branch of the repository to view the [DDL](DDL.sql) and [DML](DML
 <br><br>
 
 ## 9. Views
+<br>
 1. Customer_v – for each customer, indicate his or her name as well as the customer type (prospect, steady or premier) as well as the number of years that customer has been with us.
 ```sql
 CREATE VIEW Customer_v AS
@@ -346,7 +347,6 @@ on d.CUSTOMERID = c.CUSTOMERID);
 | Zack	|	Maldonado	| Premier |	0 |
 
 <br>
-
 2. Customer_addresses_v – for each customer, indicate whether they are an individual or a corporate account, and display all of the addresses that we are managing for that customer.
 ```sql
 CREATE VIEW Customer_addresses_v AS
@@ -373,7 +373,6 @@ on customer.customerid = address.customerid;
 | c08	|	corporation	| 9027 Bay St. Long Beach, CA 90813 |
 
 <br>
-
 3. Mechanic_mentor_v – reports all of the mentor/mentee relationships at Dave’s, sorted by the name of the mentor, then the name of the mentee.
 ```sql
 CREATE VIEW Mechanic_mentor_v AS
@@ -450,6 +449,7 @@ CREATE VIEW Prospective_resurrection_v AS
 
 <br><br>
 ## 10. Queries
+<br>
 1. List the customers.  For each customer, indicate which category he or she fall into, and his or her contact information.
 
 ```sql
