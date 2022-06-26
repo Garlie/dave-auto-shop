@@ -12,7 +12,7 @@ Long Beach, California. Mechanics and technicians at Dave's Auto Repair perform
 repairs and maintenances on roughly 100 vehicles per day. Dave, the owner of the shop, 
 believes that moving the shop's data to a database could help increase the month-to-month
 performance of the shop. A team was hired to design a database, provide 5 table views and 
-perform 16 queries.
+perform 15 queries.
 
 ### Team Members
 
@@ -36,7 +36,7 @@ perform 16 queries.
 
 ## 2. Objective
 After finalizing the design for the database, the team needs to 
-provide 5 table views and perform 16 queries to obtain information needed
+provide 5 table views and perform 15 queries to obtain information needed
 by the shop.
 
 ### Views
@@ -835,7 +835,7 @@ inner join prospective_customer d
 on d.CUSTOMERID = c.CUSTOMERID);
 
 ```
-### Output
+#### Output
 | FIRSTNAME	| LASTNAME	| TYPE	| YEARWITHUS
 | --- | --- | --- | --- |
 | Bridgette	| Storm		| Prospective	| 0 |
@@ -856,7 +856,7 @@ SELECT customer.customerid,customer.atype,address
 FROM customer inner join address
 on customer.customerid = address.customerid;
 ```
-### Output
+#### Output
 | CUSTOMERID | ATYPE | ADDRESS |
 | --- | --- | --- |
 | c01	|	private	|	1234 Cantberry Way, CA 92244 |
@@ -893,7 +893,7 @@ CREATE VIEW Mechanic_mentor_v AS
             ORDER BY pMTR.LASTNAME, pMTE.LASTNAME;
 ```
 
-### Output 
+#### Output 
 | MENTOR_ID	| MENTOR_LASTNAME |	MENTOR_FIRSTNAME	| MENTEE_ID	| MENTEE_LASTNAME	| MENTEE_FIRSTNAME	| STARTDATE	| ENDDATE	| SKILLMENTORED |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | 
 | e05	| Hancock | Stewart	| e06	| Rayn	| Paul	| 2016-11-01	| 2016-12-28	| Air Filter |
@@ -903,4 +903,352 @@ CREATE VIEW Mechanic_mentor_v AS
 | e02	| Mukasa	| Winston	| e03	| Reigns	| Ryan	| 2015-06-05	| 2015-07-20	| Oil Change |
 | e03	| Reigns | Ryan	| e02	| Mukasa | Winston	| 2016-01-01	| 2016-05-28	| Timing Belts |
 
+<br>
+4. Premier_profits_v – On a year by year basis, show the premier customer’s outlay versus what they would have been charged for the services which they received had they merely been steady customers.
 
+```sql
+CREATE VIEW Premier_profits_v AS
+SELECT c.CUSTOMERID,firstname,lastname,(2017-year(c.DATEREGISTERED))*annualfee as outlay,sum(cost) as steadytotal
+from order_item o 
+inner join visit_order v
+on v. VISITID = o.VISITID 
+inner join maintenance_item m 
+on m.ITEMID = o.ITEMID
+inner join vehicle e
+on e.VEHICLEID = v.VEHICLEID
+inner join customer c
+on c.CUSTOMERID = e.CUSTOMERID
+inner join premier_customer r
+on r.CUSTOMERID = c.CUSTOMERID
+inner join person p
+on p.PERSONID = c.PERSONID
+group by c.CUSTOMERID, firstname,lastname,(2017-year(c.DATEREGISTERED))*annualfee;
+```
+
+#### Output
+|  CUSTOMERID | FIRSTNAME | LASTNAME | OUTLAY | STEADYTOTAL |
+| --- | --- | --- | --- | --- |
+|  c03 | Hank | Schrader | 2000 | 1175 |
+|  c06 | Zack | Maldonado | 850 | 1130 |
+
+<br>
+5. Prospective_resurrection_v – List all of the prospective customers who have had three or more contacts, and for whom the most recent contact was more than a year ago.  They might be ripe for another attempt.
+
+```sql
+CREATE VIEW Prospective_resurrection_v AS
+ SELECT c.CUSTOMERID, p.FIRSTNAME, p.LASTNAME, COUNT(c.CUSTOMERID) AS 
+  number_of_contacts FROM person p INNER JOIN customer c ON 
+   p.PERSONID = c.PERSONID INNER JOIN prospective_customer pr ON 
+    pr.CUSTOMERID = c.CUSTOMERID INNER JOIN contact_made cm ON 
+     cm.CUSTOMERID = pr.CUSTOMERID WHERE 2016-YEAR(contactDate) >= 1 
+      GROUP BY p.FIRSTNAME, p.LASTNAME, c.CUSTOMERID
+       HAVING COUNT(c.CUSTOMERID) >= 3;
+```
+
+#### Output
+| CUSTOMERID | FIRSTNAME | LASTNAME | NUMBER_OF_CONTACTS |
+| --- | --- | --- | --- |
+| c07 | Mike | Yin | 3 |
+
+## Queries
+1. List the customers.  For each customer, indicate which category he or she fall into, and his or her contact information.
+
+```sql
+(select firstname,lastname, 'Steady' as type,c.atype,address from person p 
+inner join customer c on p.PERSONID = c.PERSONID
+inner join steady_customer s 
+on s.CUSTOMERID = c.CUSTOMERID
+inner join (select address.* from address
+inner join (
+select max(address) as maxID from address group by customerid) maxID
+on maxID.maxID = address.address) a
+on a.customerid = c.customerid)
+UNION
+(select firstname,lastname, 'Premier' as type,c.atype,address from person p 
+inner join customer c on p.PERSONID = c.PERSONID
+inner join premier_customer r 
+on r.CUSTOMERID = c.CUSTOMERID
+inner join (select address.* from address
+inner join (
+select max(address) as maxID from address group by customerid) maxID
+on maxID.maxID = address.address) a
+on a.customerid = c.customerid)
+UNION 
+(select firstname,lastname, 'Prospective' as type,c.atype,address from person p 
+inner join customer c on p.PERSONID = c.PERSONID
+inner join prospective_customer d 
+on d.CUSTOMERID = c.CUSTOMERID
+inner join (select address.* from address
+inner join (
+select max(address) as maxID from address group by customerid) maxID
+on maxID.maxID = address.address) a
+on a.customerid = c.customerid);
+```
+
+#### Output
+
+<br>
+2. For each service visit, list the total cost to the customer for that visit.
+
+```sql
+select o.VISITID,c.CUSTOMERID, firstname,lastname,count(*) as items, sum(cost) as total
+from order_item o 
+inner join visit_order v 
+on v. VISITID = o.VISITID 
+inner join maintenance_item m 
+on m.ITEMID = o.ITEMID
+inner join vehicle e
+on e.VEHICLEID = v.VEHICLEID
+inner join customer c
+on c.CUSTOMERID = e.CUSTOMERID
+inner join person p
+on p.PERSONID = c.PERSONID
+group by o.VISITID,o.VISITID,c.CUSTOMERID, firstname,lastname
+order by o.visitid asc;
+```
+
+#### Output
+
+<br>
+3. List the top three customers in terms of their net spending for the past two years, and the total that they have spent in that period.
+
+```sql
+SELECT c.CUSTOMERID,firstname,lastname, sum(cost) as total
+from order_item o 
+inner join (select * from visit_order v 
+where v.VODATE between '2014-12-03' and '2016-12-03') v
+on v. VISITID = o.VISITID 
+inner join maintenance_item m 
+on m.ITEMID = o.ITEMID
+inner join vehicle e
+on e.VEHICLEID = v.VEHICLEID
+inner join customer c
+on c.CUSTOMERID = e.CUSTOMERID
+inner join person p
+on p.PERSONID = c.PERSONID
+group by c.CUSTOMERID, firstname,lastname
+order by total desc
+```
+
+#### Output
+
+<br>
+4. Find all of the mechanics who have three or more skills.
+
+```sql
+SELECT firstName, lastName, COUNT(*) AS number_of_skills
+from person NATURAL JOIN employee NATURAL JOIN mechanic_skill GROUP BY firstName, lastName HAVING count(*) > 2;
+```
+
+#### Output
+
+<br>
+5. Find all of the mechanics who have three or more skills in common.
+
+```sql
+select * from (select 'e02' as employeeid1, 'e03' as employeeid2, count(*) as commonskills from (select s.skillname,count(times) as times from 
+(select skillname, count(skillname) as times from mechanic_skill
+where employeeid in ('e02','e03')
+group by skillname) s
+where s.times = 2
+group by s.skillname) a
+UNION 
+(select 'e02' as employeeid1, 'e04' as employeeid2, count(*) as commonskills from (select s.skillname,count(times) as times from 
+(select skillname, count(skillname) as times from mechanic_skill
+where employeeid in ('e03','e4')
+group by skillname) s
+where s.times = 2
+group by s.skillname) a)
+UNION 
+(select 'e02' as employeeid1, 'e06' as employeeid2, count(*) as commonskills from (select s.skillname,count(times) as times from 
+(select skillname, count(skillname) as times from mechanic_skill
+where employeeid in ('e03','e06')
+group by skillname) s
+where s.times = 2
+group by s.skillname) a)
+UNION
+(select 'e05' as employeeid1, 'e06' as employeeid2, count(*) as commonskills from (select s.skillname,count(times) as times from 
+(select skillname, count(skillname) as times from mechanic_skill
+where employeeid in ('e05','e06')
+group by skillname) s
+where s.times = 2
+group by s.skillname) a)
+UNION 
+(select 'e04' as employeeid1, 'e06' as employeeid2, count(*) as commonskills from (select s.skillname,count(times) as times from 
+(select skillname, count(skillname) as times from mechanic_skill
+where employeeid in ('e04','e06')
+group by skillname) s
+where s.times = 2
+group by s.skillname) a)) b 
+where commonskills > 2;
+```
+
+#### Output
+
+<br>
+6. For each maintenance package, list the total cost of the maintenance package, as well as a list of all of the maintenance items within that package.
+
+```sql
+select m.PACKAGEID,packagedescription as maintenanceitems,sum(i.COST) as total
+from package_item p
+inner join maintenance_package m
+on m.PACKAGEID = p.PACKAGEID
+inner join maintenance_item i
+on i.ITEMID = p.ITEMID
+group by m.packageid,packagedescription;
+```
+
+#### Output
+
+<br>
+7. Find all of those mechanics who have one or more maintenance items that they lacked one or more of the necessary skills.
+
+```sql
+select m.employeeid,firstname,lastname,phonenumber from mechanic_skill m
+inner join employee e
+on e.EMPLOYEEID = m.EMPLOYEEID
+inner join person p
+on p.PERSONID = e.PERSONID
+where m.SKILLNAME not in (select skillrequired from maintenance_item)
+group by m.employeeid,firstname,lastname,phonenumber;
+```
+
+#### Output
+
+<br>
+8. List the customers, sorted by the number of loyalty points that they have, from largest to smallest.
+
+```sql
+SELECT firstName, lastName, loyaltyPoints FROM person 
+NATURAL JOIN customer NATURAL JOIN steady_customer ORDER BY loyaltyPoints DESC;
+```
+
+#### Output
+
+<br>
+9. The premier customers and the difference between what they have paid in the past year, versus the services that they actually used during that same time.  List from the customers with the largest difference to the smallest.
+
+```sql
+SELECT c.CUSTOMERID,firstname,lastname,annualfee as actualpay,sum(cost) as shouldpay,annualfee-sum(cost) as difference
+from order_item o 
+inner join (select * from visit_order where VODATE between '2015-12-03' and '2016-12-03') v
+on v. VISITID = o.VISITID 
+inner join maintenance_item m 
+on m.ITEMID = o.ITEMID
+inner join vehicle e
+on e.VEHICLEID = v.VEHICLEID
+inner join customer c
+on c.CUSTOMERID = e.CUSTOMERID
+inner join premier_customer r
+on r.CUSTOMERID = c.CUSTOMERID
+inner join person p
+on p.PERSONID = c.PERSONID
+group by c.CUSTOMERID, firstname,lastname,annualfee
+order by difference desc;
+```
+
+#### Output
+
+<br>
+10. Report on the steady customers based on the net profit that we have made from them over the past year, and the dollar amount of that profit, in order from the greatest to the least.
+
+```sql
+SELECT c.CUSTOMERID,firstname,lastname,sum(cost) as netprofit,sum(cost)*.25 as profit
+from order_item o 
+inner join (select * from visit_order where VODATE between '2015-12-03' and '2016-12-03') v
+on v. VISITID = o.VISITID 
+inner join maintenance_item m 
+on m.ITEMID = o.ITEMID
+inner join vehicle e
+on e.VEHICLEID = v.VEHICLEID
+inner join customer c
+on c.CUSTOMERID = e.CUSTOMERID
+inner join steady_customer s
+on s.CUSTOMERID = c.CUSTOMERID
+inner join person p
+on p.PERSONID = c.PERSONID
+group by c.CUSTOMERID, firstname,lastname
+order by profit desc;
+```
+
+#### Output
+
+<br>
+11. List the three services that we have performed the most in the last year and how many times they were performed. 
+
+```sql
+select m.ITEMNAME as service,count(o.itemid) as timesperformed from (select * from visit_order v
+inner join order_item o
+on v.VISITID = o.VISITID where v.VODATE between '2015-12-03' and '2016-12-03') o
+inner join maintenance_item m
+on o.ITEMID = m.ITEMID
+group by m.ITEMNAME
+order by timesperformed desc
+fetch next 3 row only;
+** Another way to do the same thing in derby, not sure if it works in mysql **
+select m.ITEMNAME as service,count(o.itemid) as timesperformed from visit_order v
+inner join order_item o
+on v.VISITID = o.VISITID 
+inner join maintenance_item m
+on o.ITEMID = m.ITEMID
+where v.VODATE between '2015-12-03' and '2016-12-03'
+group by m.ITEMNAME
+order by timesperformed desc
+limit 3;
+```
+
+#### Output
+
+<br>
+12. List the three services that have brought in the most money in the last year along with that amount of money.
+
+```sql
+select m.ITEMNAME as service,count(o.itemid) as timesperformed, sum(cost) as total from (select * from visit_order v
+inner join order_item o
+on v.VISITID = o.VISITID where v.VODATE between '2015-12-03' and '2016-12-03') o
+inner join maintenance_item m
+on o.ITEMID = m.ITEMID
+group by m.ITEMNAME
+order by timesperformed desc
+limit 3;
+```
+
+#### Output
+
+<br>
+13. Find the mechanic who is mentoring the most other mechanics.  List the skills that the mechanic is passing along to the other mechanics.
+
+```sql
+select firstname,lastname,count(m.EMPLOYEEID) as numberofmentee,m.SKILLMENTORED from mentorship m
+inner join employee e
+on e.EMPLOYEEID = m.EMPLOYEEID
+inner join person p
+on p.PERSONID = e.PERSONID
+group by firstname,lastname,m.SKILLMENTORED
+order by numberofmentee desc
+limit 2;
+```
+
+#### Output
+
+<br>
+14. Find the three skills that have the fewest mechanics who have those skills.
+
+```sql
+SELECT skillName, count(*) AS Skill_Occurance FROM person 
+NATURAL JOIN employee NATURAL JOIN mechanic NATURAL JOIN mechanic_skill 
+GROUP BY skillName 
+ORDER BY count(*) OFFSET 0 ROWS 
+limit 3;
+```
+#### Output
+
+<br>
+15. List the employees who are both service technicians as well as mechanics.
+
+```sql
+SELECT firstName, lastName, employeeId FROM person 
+NATURAL JOIN employee NATURAL JOIN service_technician NATURAL JOIN mechanic;
+```
+
+#### Output
