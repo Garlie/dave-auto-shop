@@ -84,7 +84,7 @@ by the shop.
 <br><br>
 
 ## 3. Class Diagram 
-![](class_diagram.PNG)
+![](class_diagram.png)
 
 
 <br><br>
