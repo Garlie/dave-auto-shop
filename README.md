@@ -89,7 +89,12 @@ by the shop.
 
 <br><br>
 
-## 2. Class Definitions 
+## 3. Class Diagram 
+![](class_diagram.png)<!-- -->
+
+<br><br>
+
+## 4. Class Definitions 
 Person: A human being regarded as an individual. 
 
 Customer: A customer is any person or corporation who has paid for our services or who we think might pay for our services in the future. 
