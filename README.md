@@ -308,12 +308,12 @@ Relationship: contact information on their friend/relative from existing custome
 
 <br><br>
 
-## DDL & DML
+## 8. DDL & DML
 Visit the main branch of the repository to view the [DDL](DDL.sql) and [DML](DML.sql) files.
 
 <br><br>
 
-## 8. Views
+## 9. Views
 1. Customer_v – for each customer, indicate his or her name as well as the customer type (prospect, steady or premier) as well as the number of years that customer has been with us.
 ```sql
 CREATE VIEW Customer_v AS
@@ -449,7 +449,7 @@ CREATE VIEW Prospective_resurrection_v AS
 | c07 | Mike | Yin | 3 |
 
 <br><br>
-## 9. Queries
+## 10. Queries
 1. List the customers.  For each customer, indicate which category he or she fall into, and his or her contact information.
 
 ```sql
