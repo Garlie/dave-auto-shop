@@ -80,12 +80,6 @@ by the shop.
 14.  Find the three skills that have the fewest mechanics who have those skills.
  
 15.  List the employees who are both service technicians as well as mechanics.
- 
-16.  Four additional queries.
-* List all appointments associated with each vehicle order by closest date first
-* List all customers with a vehicle that has more than 10,000 miles, sorted by number of  miles from largest to smallest.
-* List the top three customers in terms of their number of visits for the past two years, and the total number of visits they have made in that period.
-* List all the service technicians, their working status, and the number of visit order they were part of for the past year.
 
 <br><br>
 
@@ -239,8 +233,8 @@ We did not do any denormalization in our design. The max number of tables we hav
 * status: it indicates whether a prospective customer can still become a customer or not.
 
 ### Pros-Special
-Quantity: the number of special given
-Relationship: contact information on their friend/relative from existing customer
+* Quantity: the number of special given
+* Relationship: contact information on their friend/relative from existing customer
 
 ### Special 
 * sType: the type of special we give to our steady or premier customer.
@@ -316,6 +310,7 @@ Visit the main branch of the repository to view the [DDL](DDL.sql) and [DML](DML
 ## 9. Views
 <br>
 1. Customer_v – for each customer, indicate his or her name as well as the customer type (prospect, steady or premier) as well as the number of years that customer has been with us.
+
 ```sql
 CREATE VIEW Customer_v AS
 (select firstname,lastname, 'Steady' as type,2016-year(dateregistered) AS yearwithus from person p 
@@ -332,8 +327,8 @@ UNION
 inner join customer c on p.PERSONID = c.PERSONID
 inner join prospective_customer d 
 on d.CUSTOMERID = c.CUSTOMERID);
-
 ```
+
 #### Output
 | FIRSTNAME	| LASTNAME	| TYPE	| YEARWITHUS
 | --- | --- | --- | --- |
@@ -348,12 +343,14 @@ on d.CUSTOMERID = c.CUSTOMERID);
 
 <br>
 2. Customer_addresses_v – for each customer, indicate whether they are an individual or a corporate account, and display all of the addresses that we are managing for that customer.
+
 ```sql
 CREATE VIEW Customer_addresses_v AS
 SELECT customer.customerid,customer.atype,address
 FROM customer inner join address
 on customer.customerid = address.customerid;
 ```
+
 #### Output
 | CUSTOMERID | ATYPE | ADDRESS |
 | --- | --- | --- |
@@ -374,6 +371,7 @@ on customer.customerid = address.customerid;
 
 <br>
 3. Mechanic_mentor_v – reports all of the mentor/mentee relationships at Dave’s, sorted by the name of the mentor, then the name of the mentee.
+
 ```sql
 CREATE VIEW Mechanic_mentor_v AS
  SELECT MTR.EMPLOYEEID AS Mentor_ID, pMTR.LASTNAME AS Mentor_LastName, 
